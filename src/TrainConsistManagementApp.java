@@ -15,6 +15,11 @@ public class TrainConsistManagementApp {
             this.capacity = capacity;
         }
 
+        // ✅ FIXED: Add getCapacity() method
+        public int getCapacity() {
+            return this.capacity;
+        }
+
         @Override
         public String toString() {
             return bogieId + " (" + bogieSubType + ")";
@@ -90,7 +95,7 @@ public class TrainConsistManagementApp {
         // UC7: Sort passenger bogies by capacity (ascending - low to high)
         public void sortPassengerBogiesByCapacityAscending() {
             System.out.println("\n--- Sorting Passenger Bogies by Capacity (Ascending) ---");
-            passengerBogies.sort(Comparator.comparingInt(b -> b.capacity));
+            passengerBogies.sort(Comparator.comparingInt(Bogie::getCapacity));
             System.out.println("✓ Sorted in ascending order (low to high capacity)");
         }
 
@@ -111,7 +116,7 @@ public class TrainConsistManagementApp {
         // UC7: Sort cargo bogies by capacity (ascending)
         public void sortCargoBogiesByCapacityAscending() {
             System.out.println("\n--- Sorting Cargo Bogies by Capacity (Ascending) ---");
-            cargoBogies.sort(Comparator.comparingInt(b -> b.capacity));
+            cargoBogies.sort(Comparator.comparingInt(Bogie::getCapacity));
             System.out.println("✓ Sorted in ascending order");
         }
 
@@ -208,11 +213,6 @@ public class TrainConsistManagementApp {
             System.out.println("Cargo Bogies: " + cargoBogies.size());
         }
 
-        // Helper method to get capacity (for method reference)
-        public int getCapacity() {
-            return 0;
-        }
-
         // Helper method to find bogie by ID
         private Bogie findBogieById(String bogieId) {
             for (Bogie b : bogies) {
@@ -224,8 +224,7 @@ public class TrainConsistManagementApp {
         }
     }
 
-    // UC7: Static inner class for Bogie to support getCapacity() method reference
-    // Adding getter method to Bogie class
+    // UC7: Static inner class for Bogie comparators
     static class BogieComparator {
         // UC7: Custom comparator - Sort by capacity descending
         public static Comparator<Bogie> byCapacityDescending() {
@@ -240,7 +239,7 @@ public class TrainConsistManagementApp {
         // UC7: Custom comparator - Sort by type then capacity
         public static Comparator<Bogie> byTypeAndCapacity() {
             return Comparator.comparing((Bogie b) -> b.bogieSubType)
-                    .thenComparingInt(b -> b.capacity);
+                    .thenComparingInt(Bogie::getCapacity);
         }
     }
 
