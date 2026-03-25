@@ -28,14 +28,16 @@ public class TrainConsistManagementApp {
         Set<String> uniqueBogieIds = new HashSet<>();
         LinkedList<String> orderedConsist = new LinkedList<>();
         LinkedHashSet<String> insertionOrderConsist = new LinkedHashSet<>();
-        HashMap<String, Integer> bogieCapacityMap = new HashMap<>();  // UC6: HashMap for bogie-capacity mapping
+        HashMap<String, Integer> bogieCapacityMap = new HashMap<>();
+        List<Bogie> passengerBogies = new ArrayList<>();  // UC7: List for passenger bogies
+        List<Bogie> cargoBogies = new ArrayList<>();      // UC7: List for cargo bogies
 
         public Train(String trainId, String name) {
             this.trainId = trainId;
             this.name = name;
         }
 
-        // UC6: Add bogie with capacity mapping
+        // UC7: Add bogie with capacity mapping and categorization
         public void addBogie(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists! Duplicate not added.");
@@ -45,11 +47,19 @@ public class TrainConsistManagementApp {
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addLast(bogie.bogieId);
             insertionOrderConsist.add(bogie.bogieId);
-            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);
+
+            // UC7: Categorize bogie by type
+            if ("Passenger".equals(bogie.bogieType)) {
+                passengerBogies.add(bogie);
+            } else if ("Cargo".equals(bogie.bogieType)) {
+                cargoBogies.add(bogie);
+            }
+
             System.out.println("✓ Added Bogie: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC6: Add bogie at the beginning (Engine position)
+        // UC7: Add bogie at the beginning (Engine position)
         public void addBogieAtFirst(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
@@ -59,11 +69,11 @@ public class TrainConsistManagementApp {
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addFirst(bogie.bogieId);
             insertionOrderConsist.add(bogie.bogieId);
-            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);
             System.out.println("✓ Added Bogie at FIRST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC6: Add bogie at the end (Guard Coach position)
+        // UC7: Add bogie at the end (Guard Coach position)
         public void addBogieAtLast(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
@@ -73,125 +83,134 @@ public class TrainConsistManagementApp {
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addLast(bogie.bogieId);
             insertionOrderConsist.add(bogie.bogieId);
-            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);
             System.out.println("✓ Added Bogie at LAST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC6: Display bogie-capacity mapping (HashMap)
-        public void displayBogieCapacityMap() {
-            System.out.println("\n--- BOGIE CAPACITY MAP (HashMap) ---");
-            System.out.println("Total Mappings: " + bogieCapacityMap.size());
-            if (bogieCapacityMap.isEmpty()) {
-                System.out.println("No bogie-capacity mappings.");
+        // UC7: Sort passenger bogies by capacity (ascending - low to high)
+        public void sortPassengerBogiesByCapacityAscending() {
+            System.out.println("\n--- Sorting Passenger Bogies by Capacity (Ascending) ---");
+            passengerBogies.sort(Comparator.comparingInt(b -> b.capacity));
+            System.out.println("✓ Sorted in ascending order (low to high capacity)");
+        }
+
+        // UC7: Sort passenger bogies by capacity (descending - high to low)
+        public void sortPassengerBogiesByCapacityDescending() {
+            System.out.println("\n--- Sorting Passenger Bogies by Capacity (Descending) ---");
+            passengerBogies.sort(Comparator.comparingInt(Bogie::getCapacity).reversed());
+            System.out.println("✓ Sorted in descending order (high to low capacity)");
+        }
+
+        // UC7: Sort passenger bogies by bogie type (alphabetical)
+        public void sortPassengerBogiesByType() {
+            System.out.println("\n--- Sorting Passenger Bogies by Type (Alphabetical) ---");
+            passengerBogies.sort(Comparator.comparing(b -> b.bogieSubType));
+            System.out.println("✓ Sorted alphabetically by type");
+        }
+
+        // UC7: Sort cargo bogies by capacity (ascending)
+        public void sortCargoBogiesByCapacityAscending() {
+            System.out.println("\n--- Sorting Cargo Bogies by Capacity (Ascending) ---");
+            cargoBogies.sort(Comparator.comparingInt(b -> b.capacity));
+            System.out.println("✓ Sorted in ascending order");
+        }
+
+        // UC7: Sort cargo bogies by capacity (descending)
+        public void sortCargoBogiesByCapacityDescending() {
+            System.out.println("\n--- Sorting Cargo Bogies by Capacity (Descending) ---");
+            cargoBogies.sort(Comparator.comparingInt(Bogie::getCapacity).reversed());
+            System.out.println("✓ Sorted in descending order");
+        }
+
+        // UC7: Display passenger bogies with sorting information
+        public void displayPassengerBogies() {
+            System.out.println("\n--- PASSENGER BOGIES ---");
+            System.out.println("Total Passenger Bogies: " + passengerBogies.size());
+            if (passengerBogies.isEmpty()) {
+                System.out.println("No passenger bogies.");
                 return;
             }
-
-            System.out.println("\nUsing entrySet() for iteration:");
-            int serialNo = 1;
-            for (Map.Entry<String, Integer> entry : bogieCapacityMap.entrySet()) {
-                String bogieId = entry.getKey();
-                Integer capacity = entry.getValue();
-                Bogie bogie = findBogieById(bogieId);
-                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
-                System.out.println("  " + serialNo + ". Bogie ID: " + bogieId + " | Type: " + subType + " | Capacity: " + capacity);
-                serialNo++;
-            }
-        }
-
-        // UC6: Display using keySet() iteration
-        public void displayBogieCapacityUsingKeySet() {
-            System.out.println("\n--- BOGIE CAPACITY MAP (Using keySet()) ---");
-            System.out.println("Bogie IDs (Keys): " + bogieCapacityMap.keySet());
-            System.out.println("\nDetailed View:");
-            for (String bogieId : bogieCapacityMap.keySet()) {
-                Integer capacity = bogieCapacityMap.get(bogieId);  // UC6: Lookup capacity using key
-                Bogie bogie = findBogieById(bogieId);
-                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
-                System.out.println("  → " + bogieId + " [" + subType + "]: " + capacity);
-            }
-        }
-
-        // UC6: Display using values() iteration
-        public void displayCapacityValues() {
-            System.out.println("\n--- CAPACITY VALUES (Using values()) ---");
-            System.out.println("All Capacity Values: " + bogieCapacityMap.values());
-            System.out.println("\nCapacity Analysis:");
-            int totalCapacity = 0;
-            int maxCapacity = 0;
-            int minCapacity = Integer.MAX_VALUE;
-
-            for (Integer capacity : bogieCapacityMap.values()) {
-                totalCapacity += capacity;
-                maxCapacity = Math.max(maxCapacity, capacity);
-                minCapacity = Math.min(minCapacity, capacity);
-            }
-
-            System.out.println("  Total Capacity: " + totalCapacity);
-            System.out.println("  Maximum Capacity: " + maxCapacity);
-            System.out.println("  Minimum Capacity: " + minCapacity);
-            System.out.println("  Average Capacity: " + (totalCapacity / bogieCapacityMap.size()));
-        }
-
-        // UC6: Check if bogie exists in map and get its capacity
-        public void getCapacityOfBogie(String bogieId) {
-            if (bogieCapacityMap.containsKey(bogieId)) {
-                Integer capacity = bogieCapacityMap.get(bogieId);
-                System.out.println("✓ Bogie '" + bogieId + "' found with capacity: " + capacity);
-            } else {
-                System.out.println("✗ Bogie '" + bogieId + "' not found in map.");
-            }
-        }
-
-        // UC6: Update capacity of existing bogie
-        public void updateBogieCapacity(String bogieId, int newCapacity) {
-            if (bogieCapacityMap.containsKey(bogieId)) {
-                int oldCapacity = bogieCapacityMap.get(bogieId);
-                bogieCapacityMap.put(bogieId, newCapacity);
-                System.out.println("✓ Updated capacity for bogie '" + bogieId + "': " + oldCapacity + " → " + newCapacity);
-            } else {
-                System.out.println("✗ Bogie '" + bogieId + "' not found in map.");
-            }
-        }
-
-        // UC6: Display complete train with all data structures
-        public void displayCompleteTrainInfo() {
-            System.out.println("\n--- COMPLETE TRAIN INFORMATION ---");
-            System.out.println("Train ID: " + trainId);
-            System.out.println("Train Name: " + name);
-            System.out.println("Total Bogies: " + bogies.size());
-
-            System.out.println("\nTrain Consist (Insertion Order):");
+            System.out.println("\nCurrent Order:");
             int position = 1;
-            for (String bogieId : insertionOrderConsist) {
-                Integer capacity = bogieCapacityMap.get(bogieId);
-                Bogie bogie = findBogieById(bogieId);
-                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
-                System.out.println("  " + position + ". [" + bogieId + "] " + subType + " - Capacity: " + capacity);
+            for (Bogie bogie : passengerBogies) {
+                System.out.println("  " + position + ". [" + bogie.bogieId + "] " + bogie.bogieSubType + " - Capacity: " + bogie.capacity);
                 position++;
             }
         }
 
-        // UC6: Data structure comparison
-        public void displayDataStructureComparison() {
-            System.out.println("\n--- DATA STRUCTURE COMPARISON ---");
-            System.out.println("\n1. ArrayList (bogies):");
-            System.out.println("   Purpose: Store complete Bogie objects");
-            System.out.println("   Elements: " + bogies.size());
-            for (Bogie b : bogies) {
-                System.out.println("   - " + b);
+        // UC7: Display cargo bogies with sorting information
+        public void displayCargoBogies() {
+            System.out.println("\n--- CARGO BOGIES ---");
+            System.out.println("Total Cargo Bogies: " + cargoBogies.size());
+            if (cargoBogies.isEmpty()) {
+                System.out.println("No cargo bogies.");
+                return;
+            }
+            System.out.println("\nCurrent Order:");
+            int position = 1;
+            for (Bogie bogie : cargoBogies) {
+                System.out.println("  " + position + ". [" + bogie.bogieId + "] " + bogie.bogieSubType + " - Capacity: " + bogie.capacity);
+                position++;
+            }
+        }
+
+        // UC7: Display all bogies sorted
+        public void displayAllBogiesSorted() {
+            System.out.println("\n--- ALL BOGIES (Current Order) ---");
+            System.out.println("Total Bogies: " + bogies.size());
+            int position = 1;
+            for (Bogie bogie : bogies) {
+                System.out.println("  " + position + ". [" + bogie.bogieId + "] " + bogie.bogieSubType + " (" + bogie.bogieType + ") - Capacity: " + bogie.capacity);
+                position++;
+            }
+        }
+
+        // UC7: Capacity analysis by type
+        public void displayCapacityAnalysisByType() {
+            System.out.println("\n--- CAPACITY ANALYSIS BY TYPE ---");
+
+            // Passenger capacity analysis
+            if (!passengerBogies.isEmpty()) {
+                int totalPassengerCapacity = passengerBogies.stream().mapToInt(b -> b.capacity).sum();
+                int avgPassengerCapacity = totalPassengerCapacity / passengerBogies.size();
+                int maxPassengerCapacity = passengerBogies.stream().mapToInt(b -> b.capacity).max().orElse(0);
+                int minPassengerCapacity = passengerBogies.stream().mapToInt(b -> b.capacity).min().orElse(0);
+
+                System.out.println("\nPassenger Bogies:");
+                System.out.println("  Total Capacity: " + totalPassengerCapacity);
+                System.out.println("  Average Capacity: " + avgPassengerCapacity);
+                System.out.println("  Max Capacity: " + maxPassengerCapacity);
+                System.out.println("  Min Capacity: " + minPassengerCapacity);
             }
 
-            System.out.println("\n2. HashSet (uniqueBogieIds):");
-            System.out.println("   Purpose: Ensure uniqueness");
-            System.out.println("   Elements: " + uniqueBogieIds);
+            // Cargo capacity analysis
+            if (!cargoBogies.isEmpty()) {
+                int totalCargoCapacity = cargoBogies.stream().mapToInt(b -> b.capacity).sum();
+                int avgCargoCapacity = totalCargoCapacity / cargoBogies.size();
+                int maxCargoCapacity = cargoBogies.stream().mapToInt(b -> b.capacity).max().orElse(0);
+                int minCargoCapacity = cargoBogies.stream().mapToInt(b -> b.capacity).min().orElse(0);
 
-            System.out.println("\n3. LinkedHashSet (insertionOrderConsist):");
-            System.out.println("   Purpose: Maintain insertion order with uniqueness");
-            System.out.println("   Elements: " + insertionOrderConsist);
+                System.out.println("\nCargo Bogies:");
+                System.out.println("  Total Capacity: " + totalCargoCapacity);
+                System.out.println("  Average Capacity: " + avgCargoCapacity);
+                System.out.println("  Max Capacity: " + maxCargoCapacity);
+                System.out.println("  Min Capacity: " + minCargoCapacity);
+            }
+        }
 
-            System.out.println("\n4. HashMap (bogieCapacityMap):");
-            System.out.println("   Purpose: Map bogie ID to capacity (key-value pairs)");
-            System.out.println("   Mappings: " + bogieCapacityMap);
+        // UC7: Display train summary
+        public void displayTrainSummary() {
+            System.out.println("\n--- TRAIN SUMMARY ---");
+            System.out.println("Train ID: " + trainId);
+            System.out.println("Train Name: " + name);
+            System.out.println("Total Bogies: " + bogies.size());
+            System.out.println("Passenger Bogies: " + passengerBogies.size());
+            System.out.println("Cargo Bogies: " + cargoBogies.size());
+        }
+
+        // Helper method to get capacity (for method reference)
+        public int getCapacity() {
+            return 0;
         }
 
         // Helper method to find bogie by ID
@@ -205,66 +224,94 @@ public class TrainConsistManagementApp {
         }
     }
 
+    // UC7: Static inner class for Bogie to support getCapacity() method reference
+    // Adding getter method to Bogie class
+    static class BogieComparator {
+        // UC7: Custom comparator - Sort by capacity descending
+        public static Comparator<Bogie> byCapacityDescending() {
+            return (b1, b2) -> Integer.compare(b2.capacity, b1.capacity);
+        }
+
+        // UC7: Custom comparator - Sort by capacity ascending
+        public static Comparator<Bogie> byCapacityAscending() {
+            return (b1, b2) -> Integer.compare(b1.capacity, b2.capacity);
+        }
+
+        // UC7: Custom comparator - Sort by type then capacity
+        public static Comparator<Bogie> byTypeAndCapacity() {
+            return Comparator.comparing((Bogie b) -> b.bogieSubType)
+                    .thenComparingInt(b -> b.capacity);
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("========== TRAIN CONSIST MANAGEMENT APP ==========");
-        System.out.println("UC6: Map Bogie to Capacity (HashMap)\n");
+        System.out.println("UC7: Sort Bogies by Capacity (Comparator)\n");
 
         // Create a train
         Train train = new Train("TR001", "Express");
 
-        // UC6 Demonstration: Adding bogies with capacity mapping
-        System.out.println("--- STEP 1: Add Bogies with Capacity Information ---");
+        // UC7 Demonstration: Adding passenger bogies
+        System.out.println("--- STEP 1: Add Passenger Bogies ---");
         train.addBogieAtFirst(new Bogie("LOC001", "Engine", "Locomotive", 0));
         train.addBogie(new Bogie("BG101", "Passenger", "Sleeper", 72));
         train.addBogie(new Bogie("BG102", "Passenger", "AC Chair", 90));
         train.addBogie(new Bogie("BG103", "Passenger", "First Class", 48));
-        train.addBogie(new Bogie("BG104", "Cargo", "Rectangular", 500));
-        train.addBogie(new Bogie("BG105", "Cargo", "Cylindrical", 600));
-        train.addBogieAtLast(new Bogie("BG106", "Special", "Guard Coach", 20));
+        train.addBogie(new Bogie("BG104", "Passenger", "General", 120));
 
-        // Display HashMap using entrySet()
-        train.displayBogieCapacityMap();
+        // UC7 Demonstration: Adding cargo bogies
+        System.out.println("\n--- STEP 2: Add Cargo Bogies ---");
+        train.addBogie(new Bogie("BG105", "Cargo", "Rectangular", 500));
+        train.addBogie(new Bogie("BG106", "Cargo", "Cylindrical", 600));
+        train.addBogie(new Bogie("BG107", "Cargo", "Flat", 800));
 
-        // Display HashMap using keySet()
-        System.out.println("\n--- STEP 2: Access Using keySet() ---");
-        train.displayBogieCapacityUsingKeySet();
+        // Display original order
+        train.displayAllBogiesSorted();
+        train.displayPassengerBogies();
+        train.displayCargoBogies();
 
-        // Display capacity values and analytics
-        System.out.println("\n--- STEP 3: Capacity Analysis ---");
-        train.displayCapacityValues();
+        // UC7 Demonstration: Sort passenger bogies ascending
+        System.out.println("\n--- STEP 3: Sort Passenger Bogies by Capacity (Ascending) ---");
+        train.sortPassengerBogiesByCapacityAscending();
+        train.displayPassengerBogies();
 
-        // UC6 Demonstration: Lookup capacity using key
-        System.out.println("\n--- STEP 4: Lookup Capacity for Specific Bogie ---");
-        train.getCapacityOfBogie("BG101");
-        train.getCapacityOfBogie("BG104");
-        train.getCapacityOfBogie("BG999");  // Non-existent bogie
+        // UC7 Demonstration: Sort passenger bogies descending
+        System.out.println("\n--- STEP 4: Sort Passenger Bogies by Capacity (Descending) ---");
+        train.sortPassengerBogiesByCapacityDescending();
+        train.displayPassengerBogies();
 
-        // UC6 Demonstration: Update capacity
-        System.out.println("\n--- STEP 5: Update Bogie Capacity ---");
-        train.updateBogieCapacity("BG102", 95);
-        train.updateBogieCapacity("BG104", 550);
-        train.updateBogieCapacity("BG999", 100);  // Non-existent bogie
+        // UC7 Demonstration: Sort passenger bogies by type
+        System.out.println("\n--- STEP 5: Sort Passenger Bogies by Type (Alphabetical) ---");
+        train.sortPassengerBogiesByType();
+        train.displayPassengerBogies();
 
-        // Display updated capacity map
-        System.out.println("\n--- STEP 6: Display Updated Capacity Map ---");
-        train.displayBogieCapacityMap();
+        // UC7 Demonstration: Sort cargo bogies
+        System.out.println("\n--- STEP 6: Sort Cargo Bogies by Capacity (Descending) ---");
+        train.sortCargoBogiesByCapacityDescending();
+        train.displayCargoBogies();
 
-        // Display complete train information
-        train.displayCompleteTrainInfo();
+        // UC7 Demonstration: Capacity analysis
+        train.displayCapacityAnalysisByType();
+        train.displayTrainSummary();
 
-        // Display data structure comparison
-        train.displayDataStructureComparison();
+        // Show Comparator behavior
+        System.out.println("\n--- Comparator Key Concepts ---");
+        System.out.println("1. Comparator defines custom comparison logic for sorting");
+        System.out.println("2. Comparator.comparingInt() creates comparator from int field");
+        System.out.println("3. .reversed() returns comparator in reverse order");
+        System.out.println("4. Comparator.comparing() creates comparator from any field");
+        System.out.println("5. Lambda expressions provide concise comparator syntax");
+        System.out.println("6. List.sort(comparator) sorts list in-place");
+        System.out.println("7. thenComparingInt() chains multiple comparators");
+        System.out.println("8. Comparators enable flexible sorting without modifying data");
+        System.out.println("9. Perfect for business logic-based ordering");
 
-        // Show HashMap behavior
-        System.out.println("\n--- HashMap Key Concepts ---");
-        System.out.println("1. HashMap stores data as key-value pairs");
-        System.out.println("2. put(key, value) inserts or updates mappings");
-        System.out.println("3. get(key) retrieves value in O(1) constant time");
-        System.out.println("4. containsKey(key) checks if key exists");
-        System.out.println("5. entrySet() returns all key-value pairs");
-        System.out.println("6. keySet() returns all keys");
-        System.out.println("7. values() returns all values");
-        System.out.println("8. HashMap does NOT maintain insertion order (use LinkedHashMap for order)");
-        System.out.println("9. Perfect for fast lookups and attribute associations");
+        // Show different sorting strategies
+        System.out.println("\n--- Comparator Strategies Demonstrated ---");
+        System.out.println("1. Capacity Ascending: Low capacity → High capacity");
+        System.out.println("2. Capacity Descending: High capacity → Low capacity");
+        System.out.println("3. Alphabetical Type: Sorted by bogie subtype");
+        System.out.println("4. Chained Comparators: Type first, then capacity");
+        System.out.println("5. Stream Analytics: Using map, reduce, min, max operations");
     }
 }
