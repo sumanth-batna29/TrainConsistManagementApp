@@ -5,12 +5,19 @@ public class TrainConsistManagementApp {
     static class Bogie {
         String bogieId;
         String bogieType; // "Passenger" or "Cargo"
+        String bogieSubType; // "Sleeper", "AC Chair", "First Class", "Pantry", "Guard", etc.
         int capacity;
 
-        public Bogie(String bogieId, String bogieType, int capacity) {
+        public Bogie(String bogieId, String bogieType, String bogieSubType, int capacity) {
             this.bogieId = bogieId;
             this.bogieType = bogieType;
+            this.bogieSubType = bogieSubType;
             this.capacity = capacity;
+        }
+
+        @Override
+        public String toString() {
+            return bogieId + " (" + bogieSubType + ")";
         }
     }
 
@@ -18,32 +25,15 @@ public class TrainConsistManagementApp {
         String trainId;
         String name;
         List<Bogie> bogies = new ArrayList<>();
-        Set<String> uniqueBogieIds = new HashSet<>();  // UC3: HashSet for unique IDs
+        Set<String> uniqueBogieIds = new HashSet<>();
+        LinkedList<String> orderedConsist = new LinkedList<>();  // UC4: LinkedList for ordered sequence
 
         public Train(String trainId, String name) {
             this.trainId = trainId;
             this.name = name;
         }
 
-        // UC2: Add Passenger Bogie
-        public void addPassengerBogie(Bogie bogie) {
-            if ("Passenger".equals(bogie.bogieType)) {
-                bogies.add(bogie);
-                uniqueBogieIds.add(bogie.bogieId);  // UC3: Add to HashSet
-                System.out.println("✓ Added Passenger Bogie: " + bogie.bogieId);
-            }
-        }
-
-        // UC2: Add Cargo Bogie
-        public void addCargoBogie(Bogie bogie) {
-            if ("Cargo".equals(bogie.bogieType)) {
-                bogies.add(bogie);
-                uniqueBogieIds.add(bogie.bogieId);  // UC3: Add to HashSet
-                System.out.println("✓ Added Cargo Bogie: " + bogie.bogieId);
-            }
-        }
-
-        // UC3: Add bogie with duplicate check
+        // UC4: Add bogie with duplicate check and order preservation
         public void addBogie(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists! Duplicate not added.");
@@ -51,7 +41,91 @@ public class TrainConsistManagementApp {
             }
             bogies.add(bogie);
             uniqueBogieIds.add(bogie.bogieId);
-            System.out.println("✓ Added Bogie: " + bogie.bogieId + " (" + bogie.bogieType + ")");
+            orderedConsist.addLast(bogie.bogieId);  // UC4: Add to end of LinkedList
+            System.out.println("✓ Added Bogie: " + bogie.bogieId + " (" + bogie.bogieSubType + ") - Position: " + orderedConsist.size());
+        }
+
+        // UC4: Add bogie at the beginning (Engine position)
+        public void addBogieAtFirst(Bogie bogie) {
+            if (uniqueBogieIds.contains(bogie.bogieId)) {
+                System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
+                return;
+            }
+            bogies.add(0, bogie);
+            uniqueBogieIds.add(bogie.bogieId);
+            orderedConsist.addFirst(bogie.bogieId);  // UC4: Add to beginning
+            System.out.println("✓ Added Bogie at FIRST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ")");
+        }
+
+        // UC4: Add bogie at the end (Guard Coach position)
+        public void addBogieAtLast(Bogie bogie) {
+            if (uniqueBogieIds.contains(bogie.bogieId)) {
+                System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
+                return;
+            }
+            bogies.add(bogie);
+            uniqueBogieIds.add(bogie.bogieId);
+            orderedConsist.addLast(bogie.bogieId);  // UC4: Add to end
+            System.out.println("✓ Added Bogie at LAST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ")");
+        }
+
+        // UC4: Insert bogie at specific position
+        public void insertBogieAtPosition(Bogie bogie, int position) {
+            if (uniqueBogieIds.contains(bogie.bogieId)) {
+                System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
+                return;
+            }
+            if (position < 0 || position > bogies.size()) {
+                System.out.println("✗ ERROR: Invalid position " + position + "! Valid range: 0-" + bogies.size());
+                return;
+            }
+            bogies.add(position, bogie);
+            uniqueBogieIds.add(bogie.bogieId);
+            orderedConsist.add(position, bogie.bogieId);  // UC4: Insert at specific index
+            System.out.println("✓ Inserted Bogie at position " + position + ": " + bogie.bogieId + " (" + bogie.bogieSubType + ")");
+        }
+
+        // UC4: Remove bogie from first position (remove engine)
+        public void removeFirstBogie() {
+            if (orderedConsist.isEmpty()) {
+                System.out.println("✗ ERROR: No bogies to remove!");
+                return;
+            }
+            String removedId = orderedConsist.removeFirst();  // UC4: Remove from beginning
+            uniqueBogieIds.remove(removedId);
+            bogies.remove(0);
+            System.out.println("✓ Removed FIRST Bogie: " + removedId);
+        }
+
+        // UC4: Remove bogie from last position (remove guard coach)
+        public void removeLastBogie() {
+            if (orderedConsist.isEmpty()) {
+                System.out.println("✗ ERROR: No bogies to remove!");
+                return;
+            }
+            String removedId = orderedConsist.removeLast();  // UC4: Remove from end
+            uniqueBogieIds.remove(removedId);
+            bogies.remove(bogies.size() - 1);
+            System.out.println("✓ Removed LAST Bogie: " + removedId);
+        }
+
+        // UC4: Display train consist in order (physical sequence)
+        public void displayOrderedConsist() {
+            System.out.println("\n--- TRAIN CONSIST (Ordered Sequence) ---");
+            System.out.println("Total Bogies: " + orderedConsist.size());
+            if (orderedConsist.isEmpty()) {
+                System.out.println("No bogies in train.");
+                return;
+            }
+            System.out.println("Consist: Locomotive ← → " + String.join(" ← → ", orderedConsist) + " ← → Guard Coach");
+            System.out.println("\nDetailed Order:");
+            for (int i = 0; i < orderedConsist.size(); i++) {
+                String bogieId = orderedConsist.get(i);
+                Bogie bogie = findBogieById(bogieId);
+                if (bogie != null) {
+                    System.out.println("  Position " + (i + 1) + ": " + bogie.bogieId + " | " + bogie.bogieSubType + " | Capacity: " + bogie.capacity);
+                }
+            }
         }
 
         // UC3: Display unique bogie IDs
@@ -69,53 +143,61 @@ public class TrainConsistManagementApp {
             System.out.println("Total Bogies: " + bogies.size());
         }
 
-        // Display all bogies
-        public void displayAllBogies() {
-            System.out.println("\n--- All Bogies in Train ---");
-            if (bogies.isEmpty()) {
-                System.out.println("No bogies added yet.");
-                return;
+        // Helper method to find bogie by ID
+        private Bogie findBogieById(String bogieId) {
+            for (Bogie b : bogies) {
+                if (b.bogieId.equals(bogieId)) {
+                    return b;
+                }
             }
-            for (int i = 0; i < bogies.size(); i++) {
-                Bogie b = bogies.get(i);
-                System.out.println((i + 1) + ". ID: " + b.bogieId + " | Type: " + b.bogieType + " | Capacity: " + b.capacity);
-            }
+            return null;
         }
     }
 
     public static void main(String[] args) {
         System.out.println("========== TRAIN CONSIST MANAGEMENT APP ==========");
-        System.out.println("UC3: Track Unique Bogie IDs (HashSet)\n");
+        System.out.println("UC4: Maintain Ordered Bogie IDs (LinkedList)\n");
 
         // Create a train
         Train train = new Train("TR001", "Express");
 
-        // UC3 Demonstration: Adding bogies with duplicate check
-        System.out.println("--- Adding Bogies (with Duplicate Detection) ---");
+        // UC4 Demonstration: Building train in physical sequence
+        System.out.println("--- STEP 1: Add Bogies to Train (in sequence) ---");
+        train.addBogieAtFirst(new Bogie("LOC001", "Engine", "Locomotive", 0));
+        train.addBogie(new Bogie("BG101", "Passenger", "Sleeper", 72));
+        train.addBogie(new Bogie("BG102", "Passenger", "AC Chair", 90));
+        train.addBogie(new Bogie("BG103", "Cargo", "Rectangular", 500));
+        train.addBogieAtLast(new Bogie("BG104", "Special", "Guard Coach", 20));
 
-        // Add unique bogies
-        train.addBogie(new Bogie("BG101", "Passenger", 80));
-        train.addBogie(new Bogie("BG102", "Cargo", 500));
-        train.addBogie(new Bogie("BG103", "Passenger", 90));
-        train.addBogie(new Bogie("BG104", "Cargo", 600));
+        // Display current consist
+        train.displayOrderedConsist();
 
-        // Attempt to add duplicate bogie IDs
-        System.out.println("\n--- Attempting to Add Duplicate Bogies ---");
-        train.addBogie(new Bogie("BG101", "Passenger", 80));  // Duplicate
-        train.addBogie(new Bogie("BG102", "Cargo", 500));     // Duplicate
-        train.addBogie(new Bogie("BG105", "Passenger", 75));  // New
-        train.addBogie(new Bogie("BG101", "Cargo", 550));     // Duplicate (different type)
+        // UC4 Demonstration: Insert Pantry Car at position 2
+        System.out.println("\n--- STEP 2: Insert Pantry Car at Position 2 ---");
+        train.insertBogieAtPosition(new Bogie("BG105", "Special", "Pantry Car", 50), 2);
+        train.displayOrderedConsist();
 
-        // Display results
+        // UC4 Demonstration: Remove first and last bogies
+        System.out.println("\n--- STEP 3: Remove First and Last Bogies ---");
+        train.removeFirstBogie();
+        train.displayOrderedConsist();
+
+        train.removeLastBogie();
+        train.displayOrderedConsist();
+
+        // Display summaries
         train.displayTrainSummary();
-        train.displayAllBogies();
         train.displayUniqueBogieIds();
 
-        // Show HashSet behavior
-        System.out.println("\n--- HashSet Key Concepts ---");
-        System.out.println("1. HashSet automatically removes duplicates");
-        System.out.println("2. Order of elements is NOT guaranteed (unordered)");
-        System.out.println("3. Lookup time is O(1) - very fast");
-        System.out.println("4. Perfect for tracking unique IDs in real-world systems");
+        // Show LinkedList behavior
+        System.out.println("\n--- LinkedList Key Concepts ---");
+        System.out.println("1. LinkedList maintains insertion order (physical sequence)");
+        System.out.println("2. addFirst() / addLast() attach bogies at head or tail");
+        System.out.println("3. add(index, element) inserts at specific position");
+        System.out.println("4. removeFirst() / removeLast() detach from head or tail");
+        System.out.println("5. Each element is connected via node references (not indexes)");
+        System.out.println("6. Perfect for modeling train chaining behavior");
+        System.out.println("7. Insertion/deletion at ends: O(1)");
+        System.out.println("8. Insertion/deletion at middle: O(n)");
     }
 }
