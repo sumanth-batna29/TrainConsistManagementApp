@@ -27,14 +27,15 @@ public class TrainConsistManagementApp {
         List<Bogie> bogies = new ArrayList<>();
         Set<String> uniqueBogieIds = new HashSet<>();
         LinkedList<String> orderedConsist = new LinkedList<>();
-        LinkedHashSet<String> insertionOrderConsist = new LinkedHashSet<>();  // UC5: LinkedHashSet for insertion order with uniqueness
+        LinkedHashSet<String> insertionOrderConsist = new LinkedHashSet<>();
+        HashMap<String, Integer> bogieCapacityMap = new HashMap<>();  // UC6: HashMap for bogie-capacity mapping
 
         public Train(String trainId, String name) {
             this.trainId = trainId;
             this.name = name;
         }
 
-        // UC5: Add bogie with duplicate check and insertion order preservation
+        // UC6: Add bogie with capacity mapping
         public void addBogie(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists! Duplicate not added.");
@@ -43,11 +44,12 @@ public class TrainConsistManagementApp {
             bogies.add(bogie);
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addLast(bogie.bogieId);
-            insertionOrderConsist.add(bogie.bogieId);  // UC5: Add to LinkedHashSet (maintains insertion order)
-            System.out.println("✓ Added Bogie: " + bogie.bogieId + " (" + bogie.bogieSubType + ") - Total: " + bogies.size());
+            insertionOrderConsist.add(bogie.bogieId);
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            System.out.println("✓ Added Bogie: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC5: Add bogie at the beginning (Engine position)
+        // UC6: Add bogie at the beginning (Engine position)
         public void addBogieAtFirst(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
@@ -56,11 +58,12 @@ public class TrainConsistManagementApp {
             bogies.add(0, bogie);
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addFirst(bogie.bogieId);
-            insertionOrderConsist.add(bogie.bogieId);  // UC5: Add to LinkedHashSet
-            System.out.println("✓ Added Bogie at FIRST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ")");
+            insertionOrderConsist.add(bogie.bogieId);
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            System.out.println("✓ Added Bogie at FIRST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC5: Add bogie at the end (Guard Coach position)
+        // UC6: Add bogie at the end (Guard Coach position)
         public void addBogieAtLast(Bogie bogie) {
             if (uniqueBogieIds.contains(bogie.bogieId)) {
                 System.out.println("✗ ERROR: Bogie ID '" + bogie.bogieId + "' already exists!");
@@ -69,59 +72,126 @@ public class TrainConsistManagementApp {
             bogies.add(bogie);
             uniqueBogieIds.add(bogie.bogieId);
             orderedConsist.addLast(bogie.bogieId);
-            insertionOrderConsist.add(bogie.bogieId);  // UC5: Add to LinkedHashSet
-            System.out.println("✓ Added Bogie at LAST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ")");
+            insertionOrderConsist.add(bogie.bogieId);
+            bogieCapacityMap.put(bogie.bogieId, bogie.capacity);  // UC6: Map bogie ID to capacity
+            System.out.println("✓ Added Bogie at LAST position: " + bogie.bogieId + " (" + bogie.bogieSubType + ") | Capacity: " + bogie.capacity);
         }
 
-        // UC5: Display insertion order consist (LinkedHashSet)
-        public void displayInsertionOrderConsist() {
-            System.out.println("\n--- TRAIN CONSIST (Insertion Order - LinkedHashSet) ---");
-            System.out.println("Total Unique Bogies: " + insertionOrderConsist.size());
-            if (insertionOrderConsist.isEmpty()) {
-                System.out.println("No bogies in train.");
+        // UC6: Display bogie-capacity mapping (HashMap)
+        public void displayBogieCapacityMap() {
+            System.out.println("\n--- BOGIE CAPACITY MAP (HashMap) ---");
+            System.out.println("Total Mappings: " + bogieCapacityMap.size());
+            if (bogieCapacityMap.isEmpty()) {
+                System.out.println("No bogie-capacity mappings.");
                 return;
             }
-            System.out.println("Formation Order: " + String.join(" → ", insertionOrderConsist));
-            System.out.println("\nDetailed Insertion Order:");
-            int position = 1;
-            for (String bogieId : insertionOrderConsist) {
+
+            System.out.println("\nUsing entrySet() for iteration:");
+            int serialNo = 1;
+            for (Map.Entry<String, Integer> entry : bogieCapacityMap.entrySet()) {
+                String bogieId = entry.getKey();
+                Integer capacity = entry.getValue();
                 Bogie bogie = findBogieById(bogieId);
-                if (bogie != null) {
-                    System.out.println("  Position " + position + ": " + bogie.bogieId + " | " + bogie.bogieSubType + " | Capacity: " + bogie.capacity);
-                    position++;
-                }
+                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
+                System.out.println("  " + serialNo + ". Bogie ID: " + bogieId + " | Type: " + subType + " | Capacity: " + capacity);
+                serialNo++;
             }
         }
 
-        // Display train summary
-        public void displayTrainSummary() {
-            System.out.println("\n--- Train Summary ---");
+        // UC6: Display using keySet() iteration
+        public void displayBogieCapacityUsingKeySet() {
+            System.out.println("\n--- BOGIE CAPACITY MAP (Using keySet()) ---");
+            System.out.println("Bogie IDs (Keys): " + bogieCapacityMap.keySet());
+            System.out.println("\nDetailed View:");
+            for (String bogieId : bogieCapacityMap.keySet()) {
+                Integer capacity = bogieCapacityMap.get(bogieId);  // UC6: Lookup capacity using key
+                Bogie bogie = findBogieById(bogieId);
+                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
+                System.out.println("  → " + bogieId + " [" + subType + "]: " + capacity);
+            }
+        }
+
+        // UC6: Display using values() iteration
+        public void displayCapacityValues() {
+            System.out.println("\n--- CAPACITY VALUES (Using values()) ---");
+            System.out.println("All Capacity Values: " + bogieCapacityMap.values());
+            System.out.println("\nCapacity Analysis:");
+            int totalCapacity = 0;
+            int maxCapacity = 0;
+            int minCapacity = Integer.MAX_VALUE;
+
+            for (Integer capacity : bogieCapacityMap.values()) {
+                totalCapacity += capacity;
+                maxCapacity = Math.max(maxCapacity, capacity);
+                minCapacity = Math.min(minCapacity, capacity);
+            }
+
+            System.out.println("  Total Capacity: " + totalCapacity);
+            System.out.println("  Maximum Capacity: " + maxCapacity);
+            System.out.println("  Minimum Capacity: " + minCapacity);
+            System.out.println("  Average Capacity: " + (totalCapacity / bogieCapacityMap.size()));
+        }
+
+        // UC6: Check if bogie exists in map and get its capacity
+        public void getCapacityOfBogie(String bogieId) {
+            if (bogieCapacityMap.containsKey(bogieId)) {
+                Integer capacity = bogieCapacityMap.get(bogieId);
+                System.out.println("✓ Bogie '" + bogieId + "' found with capacity: " + capacity);
+            } else {
+                System.out.println("✗ Bogie '" + bogieId + "' not found in map.");
+            }
+        }
+
+        // UC6: Update capacity of existing bogie
+        public void updateBogieCapacity(String bogieId, int newCapacity) {
+            if (bogieCapacityMap.containsKey(bogieId)) {
+                int oldCapacity = bogieCapacityMap.get(bogieId);
+                bogieCapacityMap.put(bogieId, newCapacity);
+                System.out.println("✓ Updated capacity for bogie '" + bogieId + "': " + oldCapacity + " → " + newCapacity);
+            } else {
+                System.out.println("✗ Bogie '" + bogieId + "' not found in map.");
+            }
+        }
+
+        // UC6: Display complete train with all data structures
+        public void displayCompleteTrainInfo() {
+            System.out.println("\n--- COMPLETE TRAIN INFORMATION ---");
             System.out.println("Train ID: " + trainId);
             System.out.println("Train Name: " + name);
-            System.out.println("Total Bogies (ArrayList): " + bogies.size());
-            System.out.println("Total Unique Bogies (HashSet): " + uniqueBogieIds.size());
-            System.out.println("Total Bogies (LinkedHashSet): " + insertionOrderConsist.size());
+            System.out.println("Total Bogies: " + bogies.size());
+
+            System.out.println("\nTrain Consist (Insertion Order):");
+            int position = 1;
+            for (String bogieId : insertionOrderConsist) {
+                Integer capacity = bogieCapacityMap.get(bogieId);
+                Bogie bogie = findBogieById(bogieId);
+                String subType = (bogie != null) ? bogie.bogieSubType : "Unknown";
+                System.out.println("  " + position + ". [" + bogieId + "] " + subType + " - Capacity: " + capacity);
+                position++;
+            }
         }
 
-        // UC5: Comparison of different data structures
+        // UC6: Data structure comparison
         public void displayDataStructureComparison() {
-            System.out.println("\n--- Data Structure Comparison ---");
-            System.out.println("ArrayList (Ordered, Allows Duplicates):");
-            System.out.println("  Bogies: " + bogies.size() + " elements");
-            for (int i = 0; i < bogies.size(); i++) {
-                System.out.print("  [" + i + "] " + bogies.get(i).bogieId);
-                if (i < bogies.size() - 1) System.out.print(", ");
+            System.out.println("\n--- DATA STRUCTURE COMPARISON ---");
+            System.out.println("\n1. ArrayList (bogies):");
+            System.out.println("   Purpose: Store complete Bogie objects");
+            System.out.println("   Elements: " + bogies.size());
+            for (Bogie b : bogies) {
+                System.out.println("   - " + b);
             }
-            System.out.println("\n");
 
-            System.out.println("HashSet (Unordered, No Duplicates):");
-            System.out.println("  Bogies: " + uniqueBogieIds.size() + " elements");
-            System.out.println("  Elements: " + uniqueBogieIds);
-            System.out.println("  (Note: Order is random)\n");
+            System.out.println("\n2. HashSet (uniqueBogieIds):");
+            System.out.println("   Purpose: Ensure uniqueness");
+            System.out.println("   Elements: " + uniqueBogieIds);
 
-            System.out.println("LinkedHashSet (Insertion Order, No Duplicates):");
-            System.out.println("  Bogies: " + insertionOrderConsist.size() + " elements");
-            System.out.println("  Elements (in insertion order): " + insertionOrderConsist);
+            System.out.println("\n3. LinkedHashSet (insertionOrderConsist):");
+            System.out.println("   Purpose: Maintain insertion order with uniqueness");
+            System.out.println("   Elements: " + insertionOrderConsist);
+
+            System.out.println("\n4. HashMap (bogieCapacityMap):");
+            System.out.println("   Purpose: Map bogie ID to capacity (key-value pairs)");
+            System.out.println("   Mappings: " + bogieCapacityMap);
         }
 
         // Helper method to find bogie by ID
@@ -137,53 +207,64 @@ public class TrainConsistManagementApp {
 
     public static void main(String[] args) {
         System.out.println("========== TRAIN CONSIST MANAGEMENT APP ==========");
-        System.out.println("UC5: Preserve Insertion Order of Bogies (LinkedHashSet)\n");
+        System.out.println("UC6: Map Bogie to Capacity (HashMap)\n");
 
         // Create a train
         Train train = new Train("TR001", "Express");
 
-        // UC5 Demonstration: Adding bogies in sequence
-        System.out.println("--- STEP 1: Add Bogies in Attachment Sequence ---");
+        // UC6 Demonstration: Adding bogies with capacity mapping
+        System.out.println("--- STEP 1: Add Bogies with Capacity Information ---");
         train.addBogieAtFirst(new Bogie("LOC001", "Engine", "Locomotive", 0));
         train.addBogie(new Bogie("BG101", "Passenger", "Sleeper", 72));
         train.addBogie(new Bogie("BG102", "Passenger", "AC Chair", 90));
-        train.addBogie(new Bogie("BG103", "Cargo", "Rectangular", 500));
-        train.addBogieAtLast(new Bogie("BG104", "Special", "Guard Coach", 20));
+        train.addBogie(new Bogie("BG103", "Passenger", "First Class", 48));
+        train.addBogie(new Bogie("BG104", "Cargo", "Rectangular", 500));
+        train.addBogie(new Bogie("BG105", "Cargo", "Cylindrical", 600));
+        train.addBogieAtLast(new Bogie("BG106", "Special", "Guard Coach", 20));
 
-        // Display insertion order
-        train.displayInsertionOrderConsist();
+        // Display HashMap using entrySet()
+        train.displayBogieCapacityMap();
 
-        // UC5 Demonstration: Attempt to add duplicate bogies
-        System.out.println("\n--- STEP 2: Attempt to Add Duplicate Bogies ---");
-        train.addBogie(new Bogie("BG101", "Passenger", "Sleeper", 72));        // Duplicate
-        train.addBogie(new Bogie("BG102", "Passenger", "AC Chair", 90));       // Duplicate
-        train.addBogie(new Bogie("BG105", "Special", "Pantry Car", 50));       // New
-        train.addBogie(new Bogie("LOC001", "Engine", "Locomotive", 0));        // Duplicate
+        // Display HashMap using keySet()
+        System.out.println("\n--- STEP 2: Access Using keySet() ---");
+        train.displayBogieCapacityUsingKeySet();
 
-        // Display insertion order after duplicate attempts
-        train.displayInsertionOrderConsist();
+        // Display capacity values and analytics
+        System.out.println("\n--- STEP 3: Capacity Analysis ---");
+        train.displayCapacityValues();
 
-        // UC5 Demonstration: Add more bogies
-        System.out.println("\n--- STEP 3: Add More Bogies ---");
-        train.addBogie(new Bogie("BG106", "Cargo", "Cylindrical", 600));
-        train.addBogie(new Bogie("BG107", "Passenger", "First Class", 48));
+        // UC6 Demonstration: Lookup capacity using key
+        System.out.println("\n--- STEP 4: Lookup Capacity for Specific Bogie ---");
+        train.getCapacityOfBogie("BG101");
+        train.getCapacityOfBogie("BG104");
+        train.getCapacityOfBogie("BG999");  // Non-existent bogie
 
-        // Display final insertion order
-        train.displayInsertionOrderConsist();
+        // UC6 Demonstration: Update capacity
+        System.out.println("\n--- STEP 5: Update Bogie Capacity ---");
+        train.updateBogieCapacity("BG102", 95);
+        train.updateBogieCapacity("BG104", 550);
+        train.updateBogieCapacity("BG999", 100);  // Non-existent bogie
 
-        // Display summaries and comparison
-        train.displayTrainSummary();
+        // Display updated capacity map
+        System.out.println("\n--- STEP 6: Display Updated Capacity Map ---");
+        train.displayBogieCapacityMap();
+
+        // Display complete train information
+        train.displayCompleteTrainInfo();
+
+        // Display data structure comparison
         train.displayDataStructureComparison();
 
-        // Show LinkedHashSet behavior
-        System.out.println("\n--- LinkedHashSet Key Concepts ---");
-        System.out.println("1. LinkedHashSet maintains insertion order (like ArrayList)");
-        System.out.println("2. LinkedHashSet enforces uniqueness (like HashSet)");
-        System.out.println("3. add() automatically prevents duplicate bogies");
-        System.out.println("4. Iteration returns elements in insertion order");
-        System.out.println("5. Perfect for tracking unique items with order preserved");
-        System.out.println("6. Time complexity: add/remove/contains = O(1)");
-        System.out.println("7. Space complexity: O(n) with extra links for ordering");
-        System.out.println("8. Use LinkedHashSet when you need BOTH uniqueness AND order");
+        // Show HashMap behavior
+        System.out.println("\n--- HashMap Key Concepts ---");
+        System.out.println("1. HashMap stores data as key-value pairs");
+        System.out.println("2. put(key, value) inserts or updates mappings");
+        System.out.println("3. get(key) retrieves value in O(1) constant time");
+        System.out.println("4. containsKey(key) checks if key exists");
+        System.out.println("5. entrySet() returns all key-value pairs");
+        System.out.println("6. keySet() returns all keys");
+        System.out.println("7. values() returns all values");
+        System.out.println("8. HashMap does NOT maintain insertion order (use LinkedHashMap for order)");
+        System.out.println("9. Perfect for fast lookups and attribute associations");
     }
 }
