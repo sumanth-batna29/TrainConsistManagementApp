@@ -1,66 +1,98 @@
-import java.util.*;
-import java.util.stream.*;
+// ✅ IMPORTS AT TOP
+import java.util.ArrayList;
+import java.util.List;
 
+// ===============================
+// Custom Exception Class
+// ===============================
+class InvalidCapacityException extends Exception {
+    public InvalidCapacityException(String message) {
+        super(message);
+    }
+}
+
+// ===============================
+// Passenger Bogie Class
+// ===============================
 class PassengerBogie {
-    String name; // Sleeper, AC Chair, First Class
-    int capacity;
 
-    public PassengerBogie(String name, int capacity) {
-        this.name = name;
+    private String type;
+    private int capacity;
+
+    // Constructor with validation (Fail-Fast)
+    public PassengerBogie(String type, int capacity) throws InvalidCapacityException {
+        if (capacity <= 0) {
+            throw new InvalidCapacityException("Capacity must be greater than zero");
+        }
+        this.type = type;
         this.capacity = capacity;
+    }
+
+    // Getters (needed for test cases)
+    public String getType() {
+        return type;
     }
 
     public int getCapacity() {
         return capacity;
     }
 
-    @Override
-    public String toString() {
-        return name + " (" + capacity + " seats)";
+    // Display method
+    public void display() {
+        System.out.println("Bogie Type: " + type + ", Capacity: " + capacity);
     }
 }
 
-public class TrainConsistPerformance {
+// ===============================
+// Train Consist Management App
+// ===============================
+public class TrainConsistManagementApp {
 
-    // Loop-based filtering
-    public static List<PassengerBogie> filterUsingLoop(List<PassengerBogie> bogies, int threshold) {
-        List<PassengerBogie> result = new ArrayList<>();
+    private List<PassengerBogie> bogies;
+
+    // Constructor (name must match class)
+    public TrainConsistManagementApp() {
+        bogies = new ArrayList<>();
+    }
+
+    // Add bogie
+    public void addBogie(PassengerBogie bogie) {
+        bogies.add(bogie);
+    }
+
+    // Display consist
+    public void displayConsist() {
+        System.out.println("\nTrain Consist:");
         for (PassengerBogie b : bogies) {
-            if (b.getCapacity() > threshold) {
-                result.add(b);
-            }
+            b.display();
         }
-        return result;
     }
 
-    // Stream-based filtering
-    public static List<PassengerBogie> filterUsingStream(List<PassengerBogie> bogies, int threshold) {
-        return bogies.stream()
-                .filter(b -> b.getCapacity() > threshold)
-                .collect(Collectors.toList());
-    }
-
+    // ===============================
+    // Main Method
+    // ===============================
     public static void main(String[] args) {
-        List<PassengerBogie> bogies = new ArrayList<>();
-        bogies.add(new PassengerBogie("Sleeper", 72));
-        bogies.add(new PassengerBogie("AC Chair", 60));
-        bogies.add(new PassengerBogie("First Class", 80));
-        bogies.add(new PassengerBogie("Sleeper", 50));
 
-        int threshold = 60;
+        TrainConsistManagementApp app = new TrainConsistManagementApp();
 
-        // Loop filtering with timing
-        long startLoop = System.nanoTime();
-        List<PassengerBogie> loopFiltered = filterUsingLoop(bogies, threshold);
-        long endLoop = System.nanoTime();
-        System.out.println("Loop filtered bogies: " + loopFiltered);
-        System.out.println("Loop elapsed time: " + (endLoop - startLoop) + " ns");
+        try {
+            // ✅ Valid bogies
+            PassengerBogie b1 = new PassengerBogie("Sleeper", 72);
+            PassengerBogie b2 = new PassengerBogie("AC Chair", 50);
 
-        // Stream filtering with timing
-        long startStream = System.nanoTime();
-        List<PassengerBogie> streamFiltered = filterUsingStream(bogies, threshold);
-        long endStream = System.nanoTime();
-        System.out.println("Stream filtered bogies: " + streamFiltered);
-        System.out.println("Stream elapsed time: " + (endStream - startStream) + " ns");
+            app.addBogie(b1);
+            app.addBogie(b2);
+
+            // ❌ Invalid bogie (throws exception)
+            PassengerBogie b3 = new PassengerBogie("First Class", 0);
+            app.addBogie(b3);
+
+        } catch (InvalidCapacityException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+
+        // Program continues safely
+        app.displayConsist();
+        System.out.println("\nExecution completed successfully.");
     }
 }
