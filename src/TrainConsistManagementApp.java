@@ -1,55 +1,66 @@
 import java.util.*;
 import java.util.stream.*;
 
-class GoodsBogie {
-    String type;   // Cylindrical, Open, Box
-    String cargo;  // Petroleum, Coal, Grain
+class PassengerBogie {
+    String name; // Sleeper, AC Chair, First Class
+    int capacity;
 
-    public GoodsBogie(String type, String cargo) {
-        this.type = type;
-        this.cargo = cargo;
+    public PassengerBogie(String name, int capacity) {
+        this.name = name;
+        this.capacity = capacity;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getCargo() {
-        return cargo;
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override
     public String toString() {
-        return type + " carrying " + cargo;
+        return name + " (" + capacity + " seats)";
     }
 }
 
 public class TrainConsistManagementApp {
 
-    // ✅ UC12 Safety Validation Method
-    public static boolean isTrainSafe(List<GoodsBogie> bogies) {
+    // Loop-based filtering
+    public static List<PassengerBogie> filterUsingLoop(List<PassengerBogie> bogies, int threshold) {
+        List<PassengerBogie> result = new ArrayList<>();
+        for (PassengerBogie b : bogies) {
+            if (b.getCapacity() > threshold) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    // Stream-based filtering
+    public static List<PassengerBogie> filterUsingStream(List<PassengerBogie> bogies, int threshold) {
         return bogies.stream()
-                .allMatch(b ->
-                        !b.getType().equalsIgnoreCase("Cylindrical") ||
-                                b.getCargo().equalsIgnoreCase("Petroleum")
-                );
+                .filter(b -> b.getCapacity() > threshold)
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
+        List<PassengerBogie> bogies = new ArrayList<>();
+        bogies.add(new PassengerBogie("Sleeper", 72));
+        bogies.add(new PassengerBogie("AC Chair", 60));
+        bogies.add(new PassengerBogie("First Class", 80));
+        bogies.add(new PassengerBogie("Sleeper", 50));
 
-        List<GoodsBogie> bogies = new ArrayList<>();
+        int threshold = 60;
 
-        bogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        bogies.add(new GoodsBogie("Open", "Coal"));
-        bogies.add(new GoodsBogie("Box", "Grain"));
+        // Loop filtering with timing
+        long startLoop = System.nanoTime();
+        List<PassengerBogie> loopFiltered = filterUsingLoop(bogies, threshold);
+        long endLoop = System.nanoTime();
+        System.out.println("Loop filtered bogies: " + loopFiltered);
+        System.out.println("Loop elapsed time: " + (endLoop - startLoop) + " ns");
 
-        // ✅ Safety Check
-        boolean isSafe = isTrainSafe(bogies);
-
-        if (isSafe) {
-            System.out.println("Train is SAFE");
-        } else {
-            System.out.println("Train is NOT SAFE");
-        }
+        // Stream filtering with timing
+        long startStream = System.nanoTime();
+        List<PassengerBogie> streamFiltered = filterUsingStream(bogies, threshold);
+        long endStream = System.nanoTime();
+        System.out.println("Stream filtered bogies: " + streamFiltered);
+        System.out.println("Stream elapsed time: " + (endStream - startStream) + " ns");
     }
 }
