@@ -1,97 +1,68 @@
 import org.junit.jupiter.api.Test;
-import java.util.*;
-import java.util.stream.*;
+import java.util.regex.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BogieTest {
 
-    // ✅ Method under test
-    public static int calculateTotalSeats(List<Bogie> bogies) {
-        return bogies.stream()
-                .map(Bogie::getCapacity)
-                .reduce(0, Integer::sum);
+    // ✅ Methods under test
+    public static boolean isValidTrainId(String trainId) {
+        Pattern pattern = Pattern.compile("TRN-\\d{4}");
+        Matcher matcher = pattern.matcher(trainId);
+        return matcher.matches();
     }
 
-    // ✅ Sample Data
-    private List<Bogie> createSampleBogies() {
-        List<Bogie> list = new ArrayList<>();
-        list.add(new Bogie("Sleeper", 72));
-        list.add(new Bogie("AC Chair", 60));
-        list.add(new Bogie("First Class", 50));
-        list.add(new Bogie("Sleeper", 80));
-        return list;
+    public static boolean isValidCargoCode(String cargoCode) {
+        Pattern pattern = Pattern.compile("PET-[A-Z]{2}");
+        Matcher matcher = pattern.matcher(cargoCode);
+        return matcher.matches();
     }
 
     @Test
-    void testReduce_TotalSeatCalculation() {
-        int total = calculateTotalSeats(createSampleBogies());
-
-        assertEquals(262, total); // 72 + 60 + 50 + 80
+    void testRegex_ValidTrainID() {
+        assertTrue(isValidTrainId("TRN-1234"));
     }
 
     @Test
-    void testReduce_MultipleBogiesAggregation() {
-        int total = calculateTotalSeats(createSampleBogies());
-
-        assertTrue(total > 0);
-        assertEquals(262, total);
+    void testRegex_InvalidTrainIDFormat() {
+        assertFalse(isValidTrainId("TRAIN12"));
+        assertFalse(isValidTrainId("TRN12A"));
+        assertFalse(isValidTrainId("1234-TRN"));
     }
 
     @Test
-    void testReduce_SingleBogieCapacity() {
-        List<Bogie> list = new ArrayList<>();
-        list.add(new Bogie("Sleeper", 72));
-
-        int total = calculateTotalSeats(list);
-
-        assertEquals(72, total);
+    void testRegex_ValidCargoCode() {
+        assertTrue(isValidCargoCode("PET-AB"));
     }
 
     @Test
-    void testReduce_EmptyBogieList() {
-        List<Bogie> emptyList = new ArrayList<>();
-
-        int total = calculateTotalSeats(emptyList);
-
-        assertEquals(0, total);
+    void testRegex_InvalidCargoCodeFormat() {
+        assertFalse(isValidCargoCode("PET-ab"));
+        assertFalse(isValidCargoCode("PET123"));
+        assertFalse(isValidCargoCode("AB-PET"));
     }
 
     @Test
-    void testReduce_CorrectCapacityExtraction() {
-        List<Bogie> list = createSampleBogies();
-
-        List<Integer> capacities = list.stream()
-                .map(Bogie::getCapacity)
-                .toList();
-
-        assertTrue(capacities.contains(72));
-        assertTrue(capacities.contains(60));
-        assertTrue(capacities.contains(50));
-        assertTrue(capacities.contains(80));
+    void testRegex_TrainIDDigitLengthValidation() {
+        assertFalse(isValidTrainId("TRN-123"));   // 3 digits
+        assertFalse(isValidTrainId("TRN-12345")); // 5 digits
     }
 
     @Test
-    void testReduce_AllBogiesIncluded() {
-        List<Bogie> list = createSampleBogies();
-
-        int expectedSum = 0;
-        for (Bogie b : list) {
-            expectedSum += b.getCapacity();
-        }
-
-        int actual = calculateTotalSeats(list);
-
-        assertEquals(expectedSum, actual);
+    void testRegex_CargoCodeUppercaseValidation() {
+        assertFalse(isValidCargoCode("PET-ab"));
+        assertFalse(isValidCargoCode("PET-aB"));
     }
 
     @Test
-    void testReduce_OriginalListUnchanged() {
-        List<Bogie> original = createSampleBogies();
-        int sizeBefore = original.size();
+    void testRegex_EmptyInputHandling() {
+        assertFalse(isValidTrainId(""));
+        assertFalse(isValidCargoCode(""));
+    }
 
-        calculateTotalSeats(original);
-
-        assertEquals(sizeBefore, original.size());
+    @Test
+    void testRegex_ExactPatternMatch() {
+        assertFalse(isValidTrainId("TRN-1234X")); // extra char
+        assertFalse(isValidCargoCode("PET-ABC")); // extra char
     }
 }
