@@ -1,51 +1,66 @@
+
 public class TrainConsistManagementAppTest {
 
     public static void main(String[] args) {
 
-        System.out.println("Running UC16 Test Cases...\n");
+        System.out.println("Running UC17 Test Cases...\n");
 
-        testSort_BasicSorting();
+        testSort_BasicAlphabeticalSorting();
+        testSort_UnsortedInput();
         testSort_AlreadySortedArray();
-        testSort_DuplicateValues();
+        testSort_DuplicateBogieNames();
         testSort_SingleElementArray();
-        testSort_AllEqualValues();
 
         System.out.println("\nAll test cases executed.");
     }
 
     // 🔹 Utility method to compare arrays
-    public static boolean isEqual(int[] a, int[] b) {
+    public static boolean isEqual(String[] a, String[] b) {
 
         if (a.length != b.length) return false;
 
         for (int i = 0; i < a.length; i++) {
-            if (a[i] != b[i]) return false;
+            if (!a[i].equals(b[i])) return false;
         }
 
         return true;
     }
 
     // ✅ Test 1
-    public static void testSort_BasicSorting() {
+    public static void testSort_BasicAlphabeticalSorting() {
 
-        int[] input = {72, 56, 24, 70, 60};
-        int[] expected = {24, 56, 60, 70, 72};
+        String[] input = {"Sleeper","AC Chair","First Class","General","Luxury"};
+        String[] expected = {"AC Chair","First Class","General","Luxury","Sleeper"};
 
-        TrainConsistManagementApp.sortCapacities(input);
+        TrainConsistManagementApp.sortBogieNames(input);
 
         if (isEqual(input, expected))
-            System.out.println("testSort_BasicSorting PASSED");
+            System.out.println("testSort_BasicAlphabeticalSorting PASSED");
         else
-            System.out.println("testSort_BasicSorting FAILED");
+            System.out.println("testSort_BasicAlphabeticalSorting FAILED");
     }
 
     // ✅ Test 2
+    public static void testSort_UnsortedInput() {
+
+        String[] input = {"Luxury","General","Sleeper","AC Chair"};
+        String[] expected = {"AC Chair","General","Luxury","Sleeper"};
+
+        TrainConsistManagementApp.sortBogieNames(input);
+
+        if (isEqual(input, expected))
+            System.out.println("testSort_UnsortedInput PASSED");
+        else
+            System.out.println("testSort_UnsortedInput FAILED");
+    }
+
+    // ✅ Test 3
     public static void testSort_AlreadySortedArray() {
 
-        int[] input = {24, 56, 60, 70, 72};
-        int[] expected = {24, 56, 60, 70, 72};
+        String[] input = {"AC Chair","First Class","General"};
+        String[] expected = {"AC Chair","First Class","General"};
 
-        TrainConsistManagementApp.sortCapacities(input);
+        TrainConsistManagementApp.sortBogieNames(input);
 
         if (isEqual(input, expected))
             System.out.println("testSort_AlreadySortedArray PASSED");
@@ -53,45 +68,31 @@ public class TrainConsistManagementAppTest {
             System.out.println("testSort_AlreadySortedArray FAILED");
     }
 
-    // ✅ Test 3
-    public static void testSort_DuplicateValues() {
+    // ✅ Test 4
+    public static void testSort_DuplicateBogieNames() {
 
-        int[] input = {72, 56, 56, 24};
-        int[] expected = {24, 56, 56, 72};
+        String[] input = {"Sleeper","AC Chair","Sleeper","General"};
+        String[] expected = {"AC Chair","General","Sleeper","Sleeper"};
 
-        TrainConsistManagementApp.sortCapacities(input);
+        TrainConsistManagementApp.sortBogieNames(input);
 
         if (isEqual(input, expected))
-            System.out.println("testSort_DuplicateValues PASSED");
+            System.out.println("testSort_DuplicateBogieNames PASSED");
         else
-            System.out.println("testSort_DuplicateValues FAILED");
+            System.out.println("testSort_DuplicateBogieNames FAILED");
     }
 
-    // ✅ Test 4
+    // ✅ Test 5
     public static void testSort_SingleElementArray() {
 
-        int[] input = {50};
-        int[] expected = {50};
+        String[] input = {"Sleeper"};
+        String[] expected = {"Sleeper"};
 
-        TrainConsistManagementApp.sortCapacities(input);
+        TrainConsistManagementApp.sortBogieNames(input);
 
         if (isEqual(input, expected))
             System.out.println("testSort_SingleElementArray PASSED");
         else
             System.out.println("testSort_SingleElementArray FAILED");
-    }
-
-    // ✅ Test 5
-    public static void testSort_AllEqualValues() {
-
-        int[] input = {40, 40, 40};
-        int[] expected = {40, 40, 40};
-
-        TrainConsistManagementApp.sortCapacities(input);
-
-        if (isEqual(input, expected))
-            System.out.println("testSort_AllEqualValues PASSED");
-        else
-            System.out.println("testSort_AllEqualValues FAILED");
     }
 }
