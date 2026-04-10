@@ -1,81 +1,45 @@
-// ===============================
-// Custom Runtime Exception
-// ===============================
-class CargoSafetyException extends RuntimeException {
-    public CargoSafetyException(String message) {
-        super(message);
-    }
-}
-
-// ===============================
-// Goods Bogie Class
-// ===============================
-class GoodsBogie {
-
-    private String shape;   // Rectangular / Cylindrical
-    private String cargo;
-
-    public GoodsBogie(String shape) {
-        this.shape = shape;
-        this.cargo = null;
-    }
-
-    public String getShape() {
-        return shape;
-    }
-
-    public String getCargo() {
-        return cargo;
-    }
-
-    // Cargo Assignment with try-catch-finally
-    public void assignCargo(String cargoType) {
-
-        try {
-            // ❌ Unsafe condition
-            if (shape.equalsIgnoreCase("Rectangular") &&
-                    cargoType.equalsIgnoreCase("Petroleum")) {
-
-                throw new CargoSafetyException(
-                        "Unsafe: Cannot assign Petroleum to Rectangular bogie");
-            }
-
-            // ✅ Safe assignment
-            this.cargo = cargoType;
-            System.out.println("Cargo assigned: " + cargoType);
-
-        } catch (CargoSafetyException e) {
-            System.out.println("Error: " + e.getMessage());
-
-        } finally {
-            System.out.println("Cargo assignment attempt completed.");
-        }
-    }
-}
-
-// ===============================
-// Main Application Class
-// ===============================
 public class TrainConsistManagementApp {
 
+    // 🔹 Bubble Sort Method
+    public static void sortCapacities(int[] capacities) {
+
+        int n = capacities.length;
+
+        for (int i = 0; i < n - 1; i++) {
+
+            for (int j = 0; j < n - i - 1; j++) {
+
+                // Compare adjacent elements
+                if (capacities[j] > capacities[j + 1]) {
+
+                    // Swap
+                    int temp = capacities[j];
+                    capacities[j] = capacities[j + 1];
+                    capacities[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    // 🔹 Display Method
+    public static void display(int[] arr) {
+        for (int val : arr) {
+            System.out.print(val + " ");
+        }
+        System.out.println();
+    }
+
+    // 🔹 Main Method (Demo Run)
     public static void main(String[] args) {
 
-        // ✅ Safe case
-        GoodsBogie g1 = new GoodsBogie("Cylindrical");
-        g1.assignCargo("Petroleum");
+        int[] capacities = {72, 56, 24, 70, 60};
 
-        System.out.println();
+        System.out.println("Before Sorting:");
+        display(capacities);
 
-        // ❌ Unsafe case
-        GoodsBogie g2 = new GoodsBogie("Rectangular");
-        g2.assignCargo("Petroleum");
+        sortCapacities(capacities);
 
-        System.out.println();
-
-        // ✅ Program continues
-        GoodsBogie g3 = new GoodsBogie("Rectangular");
-        g3.assignCargo("Coal");
-
-        System.out.println("\nProgram continues safely after handling exceptions.");
+        System.out.println("After Sorting:");
+        display(capacities);
     }
 }

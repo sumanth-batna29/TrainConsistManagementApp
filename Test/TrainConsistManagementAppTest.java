@@ -2,76 +2,96 @@ public class TrainConsistManagementAppTest {
 
     public static void main(String[] args) {
 
-        System.out.println("Running Test Cases...\n");
+        System.out.println("Running UC16 Test Cases...\n");
 
-        testCargo_SafeAssignment();
-        testCargo_UnsafeAssignmentHandled();
-        testCargo_CargoNotAssignedAfterFailure();
-        testCargo_ProgramContinuesAfterException();
-        testCargo_FinallyBlockExecution();
+        testSort_BasicSorting();
+        testSort_AlreadySortedArray();
+        testSort_DuplicateValues();
+        testSort_SingleElementArray();
+        testSort_AllEqualValues();
 
-        System.out.println("\nAll tests executed.");
+        System.out.println("\nAll test cases executed.");
     }
 
-    // ✅ 1. Safe Assignment
-    public static void testCargo_SafeAssignment() {
-        GoodsBogie bogie = new GoodsBogie("Cylindrical");
-        bogie.assignCargo("Petroleum");
+    // 🔹 Utility method to compare arrays
+    public static boolean isEqual(int[] a, int[] b) {
 
-        if ("Petroleum".equals(bogie.getCargo())) {
-            System.out.println("testCargo_SafeAssignment PASSED");
-        } else {
-            System.out.println("testCargo_SafeAssignment FAILED");
+        if (a.length != b.length) return false;
+
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] != b[i]) return false;
         }
+
+        return true;
     }
 
-    // ✅ 2. Unsafe Assignment Handled
-    public static void testCargo_UnsafeAssignmentHandled() {
-        GoodsBogie bogie = new GoodsBogie("Rectangular");
-        bogie.assignCargo("Petroleum");
+    // ✅ Test 1
+    public static void testSort_BasicSorting() {
 
-        if (bogie.getCargo() == null) {
-            System.out.println("testCargo_UnsafeAssignmentHandled PASSED");
-        } else {
-            System.out.println("testCargo_UnsafeAssignmentHandled FAILED");
-        }
+        int[] input = {72, 56, 24, 70, 60};
+        int[] expected = {24, 56, 60, 70, 72};
+
+        TrainConsistManagementApp.sortCapacities(input);
+
+        if (isEqual(input, expected))
+            System.out.println("testSort_BasicSorting PASSED");
+        else
+            System.out.println("testSort_BasicSorting FAILED");
     }
 
-    // ✅ 3. Cargo Not Assigned After Failure
-    public static void testCargo_CargoNotAssignedAfterFailure() {
-        GoodsBogie bogie = new GoodsBogie("Rectangular");
-        bogie.assignCargo("Petroleum");
+    // ✅ Test 2
+    public static void testSort_AlreadySortedArray() {
 
-        if (bogie.getCargo() == null) {
-            System.out.println("testCargo_CargoNotAssignedAfterFailure PASSED");
-        } else {
-            System.out.println("testCargo_CargoNotAssignedAfterFailure FAILED");
-        }
+        int[] input = {24, 56, 60, 70, 72};
+        int[] expected = {24, 56, 60, 70, 72};
+
+        TrainConsistManagementApp.sortCapacities(input);
+
+        if (isEqual(input, expected))
+            System.out.println("testSort_AlreadySortedArray PASSED");
+        else
+            System.out.println("testSort_AlreadySortedArray FAILED");
     }
 
-    // ✅ 4. Program Continues After Exception
-    public static void testCargo_ProgramContinuesAfterException() {
+    // ✅ Test 3
+    public static void testSort_DuplicateValues() {
 
-        GoodsBogie b1 = new GoodsBogie("Rectangular");
-        b1.assignCargo("Petroleum"); // handled
+        int[] input = {72, 56, 56, 24};
+        int[] expected = {24, 56, 56, 72};
 
-        GoodsBogie b2 = new GoodsBogie("Cylindrical");
-        b2.assignCargo("Petroleum");
+        TrainConsistManagementApp.sortCapacities(input);
 
-        if ("Petroleum".equals(b2.getCargo())) {
-            System.out.println("testCargo_ProgramContinuesAfterException PASSED");
-        } else {
-            System.out.println("testCargo_ProgramContinuesAfterException FAILED");
-        }
+        if (isEqual(input, expected))
+            System.out.println("testSort_DuplicateValues PASSED");
+        else
+            System.out.println("testSort_DuplicateValues FAILED");
     }
 
-    // ✅ 5. Finally Block Execution
-    public static void testCargo_FinallyBlockExecution() {
+    // ✅ Test 4
+    public static void testSort_SingleElementArray() {
 
-        GoodsBogie bogie = new GoodsBogie("Rectangular");
-        bogie.assignCargo("Petroleum");
+        int[] input = {50};
+        int[] expected = {50};
 
-        // If program reaches here → finally executed
-        System.out.println("testCargo_FinallyBlockExecution PASSED");
+        TrainConsistManagementApp.sortCapacities(input);
+
+        if (isEqual(input, expected))
+            System.out.println("testSort_SingleElementArray PASSED");
+        else
+            System.out.println("testSort_SingleElementArray FAILED");
+    }
+
+    // ✅ Test 5
+    public static void testSort_AllEqualValues() {
+
+        int[] input = {40, 40, 40};
+        int[] expected = {40, 40, 40};
+
+        TrainConsistManagementApp.sortCapacities(input);
+
+        if (isEqual(input, expected))
+            System.out.println("testSort_AllEqualValues PASSED");
+        else
+            System.out.println("testSort_AllEqualValues FAILED");
     }
 }
